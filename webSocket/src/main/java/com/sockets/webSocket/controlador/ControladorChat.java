@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,14 +37,27 @@ public class ControladorChat {
         usuariosConectados.remove(ipFormateada);
     }
 
-    private static String formatIp(String ip) {
-        if (ip.equals("0:0:0:0:0:0:0:1")) {
-            return "IPv6: 0:0:0:0:0:0:0:1";
-        } else {
-            return "IPv4: " + ip;
+    
+
+    public static String getLocalIp() {
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            return localHost.getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return "Unknown IP";
         }
     }
 
+    private static String formatIp(String ip) {
+        if (ip.equals("0:0:0:0:0:0:0:1")) {
+            // Obtener la IP local
+            return   getLocalIp();
+        } else {
+            return  ip;
+        }
+    }
+    
     @MessageMapping("/enviarMensaje")
     @SendTo("/tema/mensajes")
     public Mensaje enviarMensaje(Mensaje mensaje, SimpMessageHeaderAccessor cabecera) {
